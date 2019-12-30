@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/">
+        <file>ocrtool_zh.qm</file>
+    </qresource>
+</RCC>
