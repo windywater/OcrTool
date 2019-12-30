@@ -16,6 +16,9 @@
   <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout">
        <item>
@@ -99,6 +102,18 @@
          </widget>
         </item>
        </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QLabel" name="dropAreaWidget">
+       <property name="styleSheet">
+        <string notr="true">QLabel {
+  border: 1px solid #80dd80;
+}</string>
+       </property>
+       <property name="text">
+        <string>Drop image file here to OCR</string>
+       </property>
       </widget>
      </item>
     </layout>

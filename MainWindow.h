@@ -29,6 +29,7 @@ protected Q_SLOTS:
 protected:
 	void auth();
 	void showOverlappedWidget(OverlappedWidget::Action action);
+	void doImageFileOcr(const QString& imageFile);
 	void doRegionOcr();
 	void requestOcr(const QImage& image);
 	void showOcrResult(const QString& text);

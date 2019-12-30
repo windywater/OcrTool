@@ -1,4 +1,5 @@
 #include "MainWindow.h"
+#include "DragDropProxy.h"
 #include <QScreen>
 #include <QApplication>
 #include <QMessageBox>
@@ -28,6 +29,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 	ui.screenshotShortcutEdit->setText(defaultScreenshotShortcut.toString());
 	ui.ocrInRegionShortcutEdit->setText(defaultRegionOcrShortcut.toString());
+
+	DragDropProxy* proxy = new DragDropProxy(this);
+	proxy->setProxy(ui.dropAreaWidget);
+	connect(proxy, &DragDropProxy::dropTriggered, this, [=](QDropEvent* event) {
+		QList<QUrl> urls = event->mimeData()->urls();
+		if (urls.isEmpty())
+			return;
+
+		doImageFileOcr(urls.first().toLocalFile());
+	});
 
 	auth();
 }
@@ -110,6 +121,38 @@ void MainWindow::onScreenshotShortcutActivated(QxtGlobalShortcut* shortcut)
 void MainWindow::onRegionOcrShortcutActivated(QxtGlobalShortcut* shortcut)
 {
 	doRegionOcr();
+}
+
+static QSize adjustImageSize(const QSize& origin, const QSize& standard)
+{
+	if (origin.width() <= standard.width() && origin.height() <= standard.height())
+		return origin;
+
+	float stdRatio = 1.0f * standard.width() / standard.height();
+	float originRatio = 1.0f * origin.width() / origin.height();
+
+	if (originRatio > stdRatio)	// 宽高比大，压缩到标准宽度
+	{
+		return QSize(standard.width(), (int)(standard.width() / originRatio));
+	}
+	else	// 宽高比小，压缩到标准高度
+	{
+		return QSize((int)(standard.height() * originRatio), standard.height());
+	}
+}
+
+void MainWindow::doImageFileOcr(const QString& imageFile)
+{
+	QImage image(imageFile);
+	if (image.isNull())
+		return;
+
+	QSize size = adjustImageSize(image.size(), QSize(2048, 2048));
+	if (size != image.size())
+		image = image.scaled(size, Qt::KeepAspectRatio);
+
+	image = image.convertToFormat(QImage::Format_Grayscale8);
+	requestOcr(image);
 }
 
 void MainWindow::doRegionOcr()
