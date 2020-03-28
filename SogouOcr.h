@@ -14,6 +14,9 @@ public:
 	SogouOcr(QObject *parent);
 	~SogouOcr();
 
+	void setPid(const QString& pid);
+	void setKey(const QString& key);
+	void setLanguage(const QString& language);
 	void ocr(const QImage& image);
 
 Q_SIGNALS:
@@ -21,4 +24,7 @@ Q_SIGNALS:
 
 protected:
 	QNetworkAccessManager* m_mgr;
+	QString m_pid;
+	QString m_key;
+	QString m_language;
 };

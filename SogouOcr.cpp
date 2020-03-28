@@ -12,10 +12,26 @@ SogouOcr::SogouOcr(QObject *parent)
 	: QObject(parent)
 {
 	m_mgr = new QNetworkAccessManager(this);
+	m_language = "zh-CHS";
 }
 
 SogouOcr::~SogouOcr()
 {
+}
+
+void SogouOcr::setPid(const QString& pid)
+{
+	m_pid = pid;
+}
+
+void SogouOcr::setKey(const QString& key)
+{
+	m_key = key;
+}
+
+void SogouOcr::setLanguage(const QString& language)
+{
+	m_language = language;
 }
 
 void SogouOcr::ocr(const QImage& image)
@@ -24,8 +40,6 @@ void SogouOcr::ocr(const QImage& image)
 	req.setUrl(QUrl("http://deepi.sogou.com/api/sogouService"));
 	req.setHeader(QNetworkRequest::ContentTypeHeader, QStringLiteral("application/x-www-form-urlencoded"));
 
-	QByteArray pid = "";
-	QByteArray key = "";
 	QByteArray service = "basicOpenOcr";
 	QByteArray salt = QByteArray::number(QDateTime::currentDateTime().toMSecsSinceEpoch());
 
@@ -37,12 +51,12 @@ void SogouOcr::ocr(const QImage& image)
 
 	QByteArray imageShortBytes = imageBytes.left(1024);
 	QCryptographicHash hash(QCryptographicHash::Md5);
-	hash.addData(pid + service + salt + imageShortBytes + key);
+	hash.addData(m_pid.toLatin1() + service + salt + imageShortBytes + m_key.toLatin1());
 	QByteArray sign = hash.result().toHex();
 
 	QUrlQuery query;
-	query.addQueryItem("lang", "zh-CHS");
-	query.addQueryItem("pid", pid);
+	query.addQueryItem("lang", m_language);
+	query.addQueryItem("pid", m_pid);
 	query.addQueryItem("service", service);
 	query.addQueryItem("sign", sign);
 	query.addQueryItem("salt", salt);
@@ -60,8 +74,6 @@ void SogouOcr::ocr(const QImage& image)
 		}
 
 		QJsonDocument doc = QJsonDocument::fromJson(reply->readAll());
-		qDebug() << doc;
-
 		QJsonObject rootObj = doc.object();
 		if (rootObj["success"].toInt() != 1)
 		{

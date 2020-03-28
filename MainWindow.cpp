@@ -1,5 +1,7 @@
 #include "MainWindow.h"
 #include "DragDropProxy.h"
+#include "GlobalSettings.h"
+#include "SettingDialog.h"
 #include <QScreen>
 #include <QApplication>
 #include <QMessageBox>
@@ -11,27 +13,17 @@ MainWindow::MainWindow(QWidget *parent)
 	ui.setupUi(this);
 	setWindowFlags(Qt::Dialog | Qt::WindowMinMaxButtonsHint | Qt::WindowCloseButtonHint);
 
-	m_authOk = false;
 	m_sogouOcr = new SogouOcr(this);
 	connect(m_sogouOcr, &SogouOcr::finished, this, &MainWindow::onSogouOcrFinished);
 
 	m_overlappedWidget = new OverlappedWidget(this);
 	connect(m_overlappedWidget, &OverlappedWidget::regionSelected, this, &MainWindow::onRegionSelected);
-
-	QKeySequence defaultScreenshotShortcut("F7");
-	QKeySequence defaultRegionOcrShortcut("F8");
-
-	m_screenshotShortcut = new QxtGlobalShortcut(defaultScreenshotShortcut);
+	
+	m_screenshotShortcut = new QxtGlobalShortcut;
 	connect(m_screenshotShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::onScreenshotShortcutActivated);
 
-	m_regionOcrShortcut = new QxtGlobalShortcut(defaultRegionOcrShortcut);
-	connect(m_regionOcrShortcut, &QxtGlobalShortcut::activated, this, &MainWindow::onRegionOcrShortcutActivated);
-
-	ui.screenshotShortcutEdit->setText(defaultScreenshotShortcut.toString());
-	ui.ocrInRegionShortcutEdit->setText(defaultRegionOcrShortcut.toString());
-
 	DragDropProxy* proxy = new DragDropProxy(this);
-	proxy->setProxy(ui.dropAreaWidget);
+	proxy->setProxy(this);
 	connect(proxy, &DragDropProxy::dropTriggered, this, [=](QDropEvent* event) {
 		QList<QUrl> urls = event->mimeData()->urls();
 		if (urls.isEmpty())
@@ -40,28 +32,23 @@ MainWindow::MainWindow(QWidget *parent)
 		doImageFileOcr(urls.first().toLocalFile());
 	});
 
-	auth();
+	applySettings();
 }
 
 MainWindow::~MainWindow()
 {
 	delete m_screenshotShortcut;
-	delete m_regionOcrShortcut;
 }
 
-void MainWindow::auth()
+void MainWindow::applySettings()
 {
-	QNetworkAccessManager* authMgr = new QNetworkAccessManager(this);
-	QNetworkRequest req;
-	req.setUrl(QUrl("http://116.62.120.197/auth.txt"));
-	QNetworkReply* reply = authMgr->get(req);
-	QObject::connect(reply, &QNetworkReply::finished, this, [=]() {
-		reply->deleteLater();
-		authMgr->deleteLater();
-
-		if (reply->readAll().trimmed() == "1")
-			m_authOk = true;
-	});
+	m_sogouOcr->setPid(GlobalSettings::instance()->setting(GlobalSettings::Pid));
+	m_sogouOcr->setKey(GlobalSettings::instance()->setting(GlobalSettings::Key));
+	m_sogouOcr->setLanguage(GlobalSettings::instance()->setting(GlobalSettings::Language));
+	
+	QString sc = GlobalSettings::instance()->setting(GlobalSettings::ScreenOcrShortcut);
+	if (!sc.isEmpty())
+		m_screenshotShortcut->setShortcut(QKeySequence(sc));
 }
 
 void MainWindow::keyPressEvent(QKeyEvent *event)
@@ -75,24 +62,16 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::on_screenOcrButton_clicked()
 {
-	showOverlappedWidget(OverlappedWidget::OcrInRegion);
+	showOverlappedWidget();
 }
 
-void MainWindow::on_setRegionButton_clicked()
+void MainWindow::on_settingButton_clicked()
 {
-	showOverlappedWidget(OverlappedWidget::ClipRegion);
-}
+	SettingDialog dlg(this);
+	if (dlg.exec() == QDialog::Rejected)
+		return;
 
-void MainWindow::on_screenshotShortcutApplyButton_clicked()
-{
-	QKeySequence screenshotShortcut = QKeySequence::fromString(ui.screenshotShortcutEdit->text());
-	m_screenshotShortcut->setShortcut(screenshotShortcut);
-}
-
-void MainWindow::on_ocrInRegionShortcutApplyButton_clicked()
-{
-	QKeySequence ocrInRegionShortcut = QKeySequence::fromString(ui.ocrInRegionShortcutEdit->text());
-	m_regionOcrShortcut->setShortcut(ocrInRegionShortcut);
+	applySettings();
 }
 
 void MainWindow::on_clearButton_clicked()
@@ -100,12 +79,11 @@ void MainWindow::on_clearButton_clicked()
 	ui.ocrResultEdit->clear();
 }
 
-void MainWindow::showOverlappedWidget(OverlappedWidget::Action action)
+void MainWindow::showOverlappedWidget()
 {
 	QScreen* screen = QGuiApplication::primaryScreen();
 	QImage scrImage = screen->grabWindow(0).toImage();
 
-	m_overlappedWidget->setAction(action);
 	m_overlappedWidget->setScreenImage(scrImage);
 	m_overlappedWidget->setGeometry(screen->geometry());
 	m_overlappedWidget->show();
@@ -115,12 +93,7 @@ void MainWindow::showOverlappedWidget(OverlappedWidget::Action action)
 
 void MainWindow::onScreenshotShortcutActivated(QxtGlobalShortcut* shortcut)
 {
-	showOverlappedWidget(OverlappedWidget::OcrInRegion);
-}
-
-void MainWindow::onRegionOcrShortcutActivated(QxtGlobalShortcut* shortcut)
-{
-	doRegionOcr();
+	showOverlappedWidget();
 }
 
 static QSize adjustImageSize(const QSize& origin, const QSize& standard)
@@ -168,27 +141,14 @@ void MainWindow::doRegionOcr()
 	requestOcr(clipImage);
 }
 
-void MainWindow::onRegionSelected(OverlappedWidget::Action action, const QRect& region)
+void MainWindow::onRegionSelected(const QRect& region)
 {
-	if (action == OverlappedWidget::OcrInRegion)
-	{
-		QImage regionImage = m_overlappedWidget->regionImage(region);
-		requestOcr(regionImage);
-	}
-	else if (action == OverlappedWidget::ClipRegion)
-	{
-		m_clipRegion = region;
-	}
+	QImage regionImage = m_overlappedWidget->regionImage(region);
+	requestOcr(regionImage);
 }
 
 void MainWindow::requestOcr(const QImage& image)
 {
-	if (!m_authOk)
-	{
-		QMessageBox::information(this, "", tr("OCR is not available!"));
-		return;
-	}
-
 	ui.msgInfo->setText(tr("OCRing..."));
 
 	QImage processedImage = image.convertToFormat(QImage::Format_Grayscale8);
@@ -197,6 +157,14 @@ void MainWindow::requestOcr(const QImage& image)
 
 void MainWindow::onSogouOcrFinished(int code, const QString& resultText)
 {
+	// 如果对话框在最小化之前是最大化状态，showNormal会恢复原尺寸，因此要这样处理
+	if (isMinimized())
+		setWindowState(windowState() & ~Qt::WindowMinimized | Qt::WindowActive);
+	else
+		show();
+
+	raise();
+
 	if (code == 0)
 	{
 		showOcrResult(resultText);

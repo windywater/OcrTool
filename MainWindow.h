@@ -16,19 +16,16 @@ public:
 
 protected Q_SLOTS:
 	void on_screenOcrButton_clicked();
-	void on_setRegionButton_clicked();
-	void on_screenshotShortcutApplyButton_clicked();
-	void on_ocrInRegionShortcutApplyButton_clicked();
+	void on_settingButton_clicked();
 	void on_clearButton_clicked();
 
 	void onScreenshotShortcutActivated(QxtGlobalShortcut* shortcut);
-	void onRegionOcrShortcutActivated(QxtGlobalShortcut* shortcut);
-	void onRegionSelected(OverlappedWidget::Action action, const QRect& region);
+	void onRegionSelected(const QRect& region);
 
 	void onSogouOcrFinished(int code, const QString& resultText);
 protected:
-	void auth();
-	void showOverlappedWidget(OverlappedWidget::Action action);
+	void applySettings();
+	void showOverlappedWidget();
 	void doImageFileOcr(const QString& imageFile);
 	void doRegionOcr();
 	void requestOcr(const QImage& image);
@@ -39,9 +36,7 @@ private:
 	Ui::MainWindowClass ui;
 	OverlappedWidget* m_overlappedWidget;
 	QxtGlobalShortcut* m_screenshotShortcut;
-	QxtGlobalShortcut* m_regionOcrShortcut;
 	QRect m_clipRegion;
 
-	bool m_authOk;
 	SogouOcr* m_sogouOcr;
 };

@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include <QtWidgets/QApplication>
 #include <QTranslator>
+#include "GlobalSettings.h"
 
 int main(int argc, char *argv[])
 {
@@ -10,8 +11,13 @@ int main(int argc, char *argv[])
 	translator->load(":/ocrtool_zh.qm");
 	a.installTranslator(translator);
 
+	GlobalSettings::instance()->init();
 	a.setApplicationDisplayName(MainWindow::tr("OCR tool"));
 	MainWindow w;
 	w.show();
-	return a.exec();
+
+	int ret = a.exec();
+	GlobalSettings::instance()->uninit();
+
+	return ret;
 }
