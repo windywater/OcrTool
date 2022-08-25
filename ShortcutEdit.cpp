@@ -15,8 +15,8 @@ ShortcutEdit::~ShortcutEdit()
 
 void ShortcutEdit::keyPressEvent(QKeyEvent* event)
 {
-	//qDebug() << "modifiers:" << event->modifiers();
-	//qDebug() << "key:" << event->key();
+	qDebug() << "modifiers:" << event->modifiers();
+	qDebug() << "key:" << event->key();
 
 	Qt::KeyboardModifiers modifiers = event->modifiers();
 	int keys = event->key();

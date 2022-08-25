@@ -1,9 +1,7 @@
-
 TEMPLATE = app
 TARGET = OcrTool
 DESTDIR = $${PWD}/build
 QT += core network widgets gui
-DEFINES += QT_NETWORK_LIB QT_WIDGETS_LIB
 
 OBJECTS_DIR = $${PWD}/build/obj
 MOC_DIR = $${PWD}/build/moc
@@ -12,34 +10,27 @@ UI_DIR = $${PWD}/build/ui
 
 INCLUDEPATH += ./qxtShortCut
 
-HEADERS += DragDropProxy.h \
-    GlobalSettings.h \
-    MainWindow.h \
+HEADERS += MainWindow.h \
     OverlappedWidget.h \
-    SettingDialog.h \
     ShortcutEdit.h \
-    SogouOcr.h \
+    YoudaoOcr.h \
 
-SOURCES += DragDropProxy.cpp \
-    GlobalSettings.cpp \
-    main.cpp \
+SOURCES += main.cpp \
     MainWindow.cpp \
     OverlappedWidget.cpp \
-    SettingDialog.cpp \
     ShortcutEdit.cpp \
-    SogouOcr.cpp \
+    YoudaoOcr.cpp \
     
-win:{
+win32 {
     HEADERS += qxtShortCut/qxtglobalshortcut.h \
         qxtShortCut/qxtglobalshortcut_p.h
         
     SOURCES += qxtShortCut/qxtglobalshortcut.cpp \
         qxtShortCut/qxtglobalshortcut_win.cpp
+
+    LIBS += -luser32
 }
 
-FORMS += MainWindow.ui SettingDialog.ui
-
+FORMS += MainWindow.ui
 TRANSLATIONS += ocrtool_zh.ts
-
 RESOURCES += MainWindow.qrc
-

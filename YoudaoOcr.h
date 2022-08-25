@@ -6,17 +6,15 @@
 #include <QNetworkReply>
 #include <QUrl>
 
-class SogouOcr : public QObject
+class YoudaoOcr : public QObject
 {
 	Q_OBJECT
 
 public:
-	SogouOcr(QObject *parent);
-	~SogouOcr();
+	YoudaoOcr(QObject *parent);
+	~YoudaoOcr();
 
-	void setPid(const QString& pid);
-	void setKey(const QString& key);
-	void setLanguage(const QString& language);
+	void setKey(const QString& key, const QString& secret);
 	void ocr(const QImage& image);
 
 Q_SIGNALS:
@@ -24,7 +22,6 @@ Q_SIGNALS:
 
 protected:
 	QNetworkAccessManager* m_mgr;
-	QString m_pid;
 	QString m_key;
-	QString m_language;
+	QString m_secret;
 };

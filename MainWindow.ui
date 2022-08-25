@@ -6,48 +6,140 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>735</width>
+    <width>744</width>
     <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>OCR tool</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_2">
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="screenOcrButton">
-       <property name="text">
-        <string>Screenshot OCR</string>
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <widget class="QPushButton" name="screenOcrButton">
+         <property name="text">
+          <string>Screenshot OCR</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="setRegionButton">
+         <property name="text">
+          <string>Set clip region</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupBox">
+       <property name="title">
+        <string>Shortcut settings</string>
        </property>
+       <layout class="QGridLayout" name="gridLayout">
+        <item row="0" column="0">
+         <widget class="QLabel" name="label">
+          <property name="text">
+           <string>Screenshot shortcut</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="ShortcutEdit" name="screenshotShortcutEdit"/>
+        </item>
+        <item row="0" column="2">
+         <widget class="QPushButton" name="screenshotShortcutApplyButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="0">
+         <widget class="QLabel" name="label_2">
+          <property name="text">
+           <string>OCR in region shortcut</string>
+          </property>
+         </widget>
+        </item>
+        <item row="1" column="1">
+         <widget class="ShortcutEdit" name="ocrInRegionShortcutEdit"/>
+        </item>
+        <item row="1" column="2">
+         <widget class="QPushButton" name="ocrInRegionShortcutApplyButton">
+          <property name="minimumSize">
+           <size>
+            <width>80</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>80</width>
+            <height>16777215</height>
+           </size>
+          </property>
+          <property name="text">
+           <string>Apply</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="settingButton">
-       <property name="text">
-        <string>Setting</string>
+      <widget class="QGroupBox" name="groupBox_2">
+       <property name="title">
+        <string>Interval OCR settings</string>
        </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Drop a image file to OCR</string>
-       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_3">
+        <item>
+         <widget class="QPushButton" name="startStopIntervalOcrButton">
+          <property name="text">
+           <string>Start interval OCR</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_3">
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="text">
+             <string>Interval:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="intervalEdit">
+            <property name="text">
+             <string>500</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_4">
+            <property name="text">
+             <string>ms</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </item>
     </layout>
@@ -55,7 +147,7 @@
    <item>
     <widget class="QPlainTextEdit" name="ocrResultEdit">
      <property name="readOnly">
-      <bool>true</bool>
+      <bool>false</bool>
      </property>
     </widget>
    </item>
@@ -105,6 +197,13 @@
   </layout>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
+ <customwidgets>
+  <customwidget>
+   <class>ShortcutEdit</class>
+   <extends>QLineEdit</extends>
+   <header>ShortcutEdit.h</header>
+  </customwidget>
+ </customwidgets>
  <resources>
   <include location="MainWindow.qrc"/>
  </resources>

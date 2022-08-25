@@ -9,10 +9,16 @@ OverlappedWidget::OverlappedWidget(QWidget *parent)
 	setFocusPolicy(Qt::StrongFocus);
 	
 	m_dragging = false;
+	m_action = None;
 }
 
 OverlappedWidget::~OverlappedWidget()
 {
+}
+
+void OverlappedWidget::setAction(Action action)
+{
+	m_action = action;
 }
 
 void OverlappedWidget::setScreenImage(const QImage& image)
@@ -92,7 +98,7 @@ void OverlappedWidget::mouseReleaseEvent(QMouseEvent *event)
 	if (m_draggingPos != m_pressedPos)
 	{
 		m_selectedRegion = QRect(m_pressedPos, m_draggingPos).normalized();
-		emit regionSelected(m_selectedRegion);
+		emit regionSelected(m_action, m_selectedRegion);
 	}
 	
 	QDialog::mouseReleaseEvent(event);

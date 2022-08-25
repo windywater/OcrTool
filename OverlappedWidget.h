@@ -12,6 +12,14 @@ public:
 	OverlappedWidget(QWidget *parent);
 	~OverlappedWidget();
 
+	enum Action
+	{
+		None = 0,
+		OcrInRegion,
+		ClipRegion
+	};
+
+	void setAction(Action action);
 	void setScreenImage(const QImage& image);
 	QRect selectedRegion();
 	QImage regionImage(const QRect& region);
@@ -24,9 +32,10 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 Q_SIGNALS:
-	void regionSelected(const QRect& region);
+	void regionSelected(Action action, const QRect& region);
 
 protected:
+	Action m_action;
 	QImage m_screenImage;
 	QImage m_darkMaskImage;
 	QPoint m_pressedPos;
